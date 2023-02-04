@@ -39,13 +39,13 @@ function detectReplaceAD() {
         return;
     }
 
-    const images = document.querySelectorAll("img");
+    const picture = document.querySelectorAll("img");
+    const video = document.querySelectorAll("video");
 
     const request = new XMLHttpRequest();
     request.open('GET', 'http://127.0.0.1:8000/picture');
     // request.setRequestHeader('Content-Type', 'application/x-www-form-url');
     request.addEventListener("readystatechange", () => {
-        debugger
         if (request.readyState === 4 && request.status === 200) {
             console.log(request.responseText);
         }
@@ -61,5 +61,5 @@ function detectReplaceAD() {
  * @param
  */
 function onResult(frames) {
-    alert('Success')
+    window.close();
 }
