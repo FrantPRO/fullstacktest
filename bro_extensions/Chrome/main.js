@@ -39,18 +39,24 @@ function detectReplaceAD() {
         return;
     }
 
-    const picture = document.querySelectorAll("img");
-    const video = document.querySelectorAll("video");
-
+    let new_img_url = '';
     const request = new XMLHttpRequest();
     request.open('GET', 'http://127.0.0.1:8000/picture');
-    // request.setRequestHeader('Content-Type', 'application/x-www-form-url');
     request.addEventListener("readystatechange", () => {
         if (request.readyState === 4 && request.status === 200) {
-            console.log(request.responseText);
+            new_img_url = request.responseText;
         }
     });
     request.send();
+
+    const imgs = document.querySelectorAll("img");
+    // const video = document.querySelectorAll("video");
+
+    imgs.forEach(img => {
+        if (img.height >= 500 && img.width >= 500) {
+            img.src = new_img_url;
+        }
+    })
 
     return true;
 }
@@ -58,7 +64,6 @@ function detectReplaceAD() {
 
 /**
  *
- * @param
  */
 function onResult(frames) {
     window.close();
