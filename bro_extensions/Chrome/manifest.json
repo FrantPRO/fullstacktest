@@ -1,0 +1,20 @@
+{
+  "name": "Fullstack test task",
+  "manifest_version": 3,
+  "version": "1.0.1",
+  "description": "author Frantsuzov Stanislav",
+  "icons": {
+    "128": "icons/f1.png"
+  },
+  "action": {
+    "default_popup": "main.html"
+  },
+  "permissions": [
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {}
+}
