@@ -34,29 +34,45 @@ function execScript(tab) {
  *  @return
  */
 function detectReplaceAD() {
-    if (document.URL.indexOf('facebook') === -1) {
-        alert('This is not a Facebook site');
+    if (document.URL.indexOf("facebook") === -1) {
+        alert("This is not a Facebook site");
         return;
     }
 
-    let new_img_url = '';
+    const imgs = document.querySelectorAll("img");
     const request = new XMLHttpRequest();
-    request.open('GET', 'http://127.0.0.1:8000/picture');
+    request.open("GET", "http://127.0.0.1:8000/picture");
     request.addEventListener("readystatechange", () => {
         if (request.readyState === 4 && request.status === 200) {
-            new_img_url = request.responseText;
+            imgs.forEach(img => {
+                if (img.height >= 300 && img.width >= 300) {
+                    let n_img = new Image(img.width, img.height);
+                    n_img.src = JSON.parse(request.responseText);
+                    img.parentNode.insertBefore(n_img, img);
+                    img.remove();
+                }
+            })
         }
     });
     request.send();
 
-    const imgs = document.querySelectorAll("img");
-    // const video = document.querySelectorAll("video");
-
-    imgs.forEach(img => {
-        if (img.height >= 500 && img.width >= 500) {
-            img.src = new_img_url;
+    const videos = document.querySelectorAll("video");
+    request.open("GET", "http://127.0.0.1:8000/video");
+    request.addEventListener("readystatechange", () => {
+        if (request.readyState === 4 && request.status === 200) {
+            videos.forEach(video => {
+                if (video.clientHeight >= 300 && video.clientWidth >= 300) {
+                    const n_video = document.createElement("video");
+                    n_video.setAttribute("src", JSON.parse(request.responseText));
+                    n_video.setAttribute("controls", "controls");
+                    n_video.setAttribute("autoplay", true);
+                    video.parentNode.insertBefore(n_video, video);
+                    video.remove();
+                }
+            })
         }
-    })
+    });
+    request.send();
 
     return true;
 }

@@ -1,8 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+import app.models as models
+from app.database import engine, SessionLocal
+from sqlalchemy.orm import Session
 
 app = FastAPI()
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -12,9 +15,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+models.Base.metadata.create_all(bind=engine)
+
+
+def get_db():
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
+
+
+class Main(BaseModel):
+    content_type: str = Field(min_length=1)
+    content: str = Field(min_length=1)
+
+
+@app.get("/")
+async def get_all(db: Session = Depends(get_db)):
+    return db.query(models.Main).all()
+
+
 @app.get("/{adtype}")
-async def get_ad(adtype: str):
-    if adtype == 'video':
-        return "https://www.youtube.com/watch?v=dl16e_mG6hg"
-    elif adtype == 'picture':
-        return "https://kartinkin.net/pics/uploads/posts/2022-08/1660689964_66-kartinkin-net-p-fon-iz-piratov-karibskogo-morya-krasivo-76.jpg"
+async def get_ad(adtype: str, db: Session = Depends(get_db)):
+    main_model = db.query(models.Main).filter(models.Main.content_type == adtype).first()
+    if main_model is None:
+        raise HTTPException(status_code=404, detail=f"Type {adtype} does not exist")
+    return main_model.content
