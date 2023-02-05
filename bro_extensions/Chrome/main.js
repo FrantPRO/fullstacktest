@@ -39,40 +39,35 @@ function detectReplaceAD() {
         return;
     }
 
-    const imgs = document.querySelectorAll("img");
-    const request = new XMLHttpRequest();
-    request.open("GET", "http://127.0.0.1:8000/picture");
-    request.addEventListener("readystatechange", () => {
-        if (request.readyState === 4 && request.status === 200) {
-            imgs.forEach(img => {
-                if (img.height >= 300 && img.width >= 300) {
-                    let n_img = new Image(img.width, img.height);
-                    n_img.src = JSON.parse(request.responseText);
-                    img.parentNode.insertBefore(n_img, img);
-                    img.remove();
+    const images = document.querySelectorAll("img");
+    fetch("http://127.0.0.1:8000/picture")
+        .then((response) => response.json())
+        .then((data) =>
+            images.forEach(image => {
+                if (image.height >= 300 && image.width >= 300) {
+                    let new_image = new Image(image.width, image.height);
+                    new_image.src = data;
+                    image.parentNode.insertBefore(new_image, image);
+                    image.remove();
                 }
             })
-        }
-    });
-    request.send();
+        );
 
     const videos = document.querySelectorAll("video");
-    request.open("GET", "http://127.0.0.1:8000/video");
-    request.addEventListener("readystatechange", () => {
-        if (request.readyState === 4 && request.status === 200) {
+    fetch("http://127.0.0.1:8000/video")
+        .then((response) => response.json())
+        .then((data) =>
             videos.forEach(video => {
                 if (video.clientHeight >= 300 && video.clientWidth >= 300) {
                     const n_video = document.createElement("video");
-                    n_video.setAttribute("src", JSON.parse(request.responseText));
+                    n_video.setAttribute("src", data);
                     n_video.setAttribute("controls", "controls");
                     n_video.setAttribute("autoplay", true);
                     video.parentNode.insertBefore(n_video, video);
                     video.remove();
                 }
             })
-        }
-    });
-    request.send();
+        );
 
     return true;
 }
